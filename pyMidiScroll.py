@@ -86,10 +86,21 @@ def make_pictures(midi_file, mp3_file):
     height_offset = screen_height + lowest_note*pitch_height - 15
     #print height_offset-highest_note*pitch_height
 
-    colors=[]
-    for i in xrange(len(note_lists)):
-        colors+=[[random.randint(0,255), random.randint(0,255), random.randint(0,255)]]
-        colors[-1][random.randint(0,2)]=15
+    #A decent hand-picked set of colors...
+    colors=[
+        (51,255,000),
+        (51,255,255),
+        (51,000,255),
+        (153,000,255),
+        (153,051,000),
+        (204,000,000),
+        (204,000,255),
+        (153,000,000),
+        (204,000,102),
+        (204,051,204),
+        ]
+    colors=colors*5 #in case there are a lot of tracks...
+    colors=colors[:len(note_lists)]
 
     ticksPerPixel=float(max_len)/(fps*song_duration)
     print ticksPerPixel, "tpp"
