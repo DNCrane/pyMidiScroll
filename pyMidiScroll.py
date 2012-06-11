@@ -61,9 +61,8 @@ def get_note_lists(tracks):
             if event.type == "END_OF_TRACK":
                 print event
         note_lists+=[note_list]
-    note_lists+=[[[-100,0,0,100]]]
     print "max_len:", max_len, max_len2
-    return (max_len, note_lists, lowest_note, highest_note)
+    return (max(max_len, max_len2), note_lists, lowest_note, highest_note, max_len)
 
 def make_pictures(midi_file, mp3_file):
     mainloop, fps, screen_width, screen_height =  True, 30., 400, 320
@@ -80,7 +79,7 @@ def make_pictures(midi_file, mp3_file):
     m.open(midi_file)
     m.read()
 
-    (max_len, note_lists, lowest_note, highest_note) = get_note_lists(m.tracks)
+    (max_len, note_lists, lowest_note, highest_note, end_note) = get_note_lists(m.tracks)
     note_range = highest_note-lowest_note
     pitch_height = float(screen_height-30)/note_range  #the number of pixels difference for going up by 1 in pitch
     height_offset = screen_height + lowest_note*pitch_height - 15
@@ -111,7 +110,7 @@ def make_pictures(midi_file, mp3_file):
     os.system("mkdir " + midi_file + "tmp2")
     folder = midi_file + "tmp1"
     while mainloop:
-        Clock.tick(fps)
+        #Clock.tick(fps)
         pygame.display.set_caption("Press Esc to quit. FPS: %.2f" % (Clock.get_fps()))
         screen.fill((0,0,0))
 
@@ -126,7 +125,7 @@ def make_pictures(midi_file, mp3_file):
                         height_offset-note[0]*pitch_height,
                         (note[3]-note[2])/ticksPerPixel-1,
                         2+note[1]/32)
-                if(note[3]==max_len and rect[0]+rect[2]<screen_width/2):
+                if(note[3]==end_note and rect[0]+rect[2]<screen_width/2):
                     mainloop=False
                 if(rect[0]>screen_width or rect[0]+rect[2]<0):
                     continue
@@ -156,7 +155,7 @@ def make_pictures(midi_file, mp3_file):
         pygame.display.update()
         index=str(offset+screen_width)
         index='0'*(10-len(index))+index
-        pygame.image.save(screen,folder + "/frame" + index + ".png")
+        pygame.image.save(screen,folder + "/frame" + index + ".jpeg")
         offset+=1
     print offset
     pygame.quit() # Be IDLE friendly! 
@@ -174,12 +173,12 @@ def make_video(midi_file):
     make_pictures(midi_file,mp3_file)
     mp3_file = makeMP3Timidity(midi_file)
     #make video of midi
-    os.system("mencoder mf://"+midi_file+"tmp2/*.png \
--mf w=400:h=320:fps=30:type=png -ovc lavc -lavcopts \
+    os.system("mencoder mf://"+midi_file+"tmp2/*.jpeg \
+-mf w=400:h=320:fps=30:type=jpeg -ovc lavc -lavcopts \
 vcodec=mpeg4:mbd=2:trell -oac copy -o tmp"+midi_file+".avi")
     #add sound to midi video
     os.system("mencoder -ovc copy -audiofile "+mp3_file+"\
- -oac copy tmp"+midi_file+".avi -o "+midi_file+".avi")
+ -oac copy tmp"+midi_file+".avi -o 0"+midi_file+".avi")
 
     #make the video for the "run-in" (no music playing)
     #os.system("mencoder mf://"+midi_file+"tmp1/*.png \
@@ -193,5 +192,15 @@ vcodec=mpeg4:mbd=2:trell -oac copy -o tmp"+midi_file+".avi")
     #os.system("mencoder -oac copy -ovc copy tmpRunin"+midi_file+".avi "+midi_file+".avi -o FULL"+midi_file+".avi")
     return 1
 
-#make_video("Dream_Land.mid")
-
+#make_video("RobosTheme.mid")
+#make_video("ToFarAwayTimes.mid")
+#make_video("OceanPalace.mid")
+#make_video("FrogsTheme.mid")
+#make_video("Lufia2Hope.mid")
+#make_video("MemoriesOfGreen.mid")
+#
+#make_video("mm2wily1.mid")
+#make_video("Flash1_0.mid")#flashman
+#make_video("mm3intr2.mid")#mm3 intro
+#make_video("song_storms.mid")
+#make_video("dreamland2.mid")
